@@ -162,7 +162,8 @@ const (
 func initTemplate() {
 	var err error
 	if tmplEmbeddedBox != nil {
-		fmt.Println("Ya se inicio")
+		// fmt.Println("Double initialization")
+		// Cannot intialize twice
 		return
 	}
 	// $ is used as the escaping character,
