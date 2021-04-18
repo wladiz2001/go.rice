@@ -83,7 +83,6 @@ func init() {
 			// this is a file, we need it's contents so we can create a bytes.Reader when the file is opened
 			// get uncompressed size of the zip file
 			var fileSize = af.zipFile.FileInfo().Size()
-
 			// ignore reading empty files from zip (empty file still is a valid file to be read though!)
 			if fileSize > 0 {
 				// open io.ReadCloser
