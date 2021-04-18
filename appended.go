@@ -33,7 +33,7 @@ var appendedBoxes = make(map[string]*appendedBox)
 
 func init() {
 	// find if exec is appended
-	//thisFile := "C:\\Go\\projects\\compras\\compras.exe"
+	//thisFile := "C:\\Go\\projects\\compras\\compras.exe" the test file forget it
 	thisFile, err := os.Executable()
 	if err != nil {
 		return // not appended or cant find self executable
