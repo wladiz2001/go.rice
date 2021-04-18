@@ -93,9 +93,6 @@ func init() {
 					// TODO: it's quite blunt to just log this stuff. but this is in init, so rice.Debug can't be changed yet..
 					log.Printf("error opening appended file %s: %v", af.zipFile.Name, err)
 				} else {
-					//af.content = make([]byte, sizl /*af.zipFile.FileInfo().Size()*/)
-					//_, err := rc.Read(af.content)
-					//					content, err := ioutil.ReadAll(rc)
 					// if you use rc.Read to read the content in a compressed file you will get an EOF error
 					// I think there is beacuse a problem of flate implementation
 					// ioutil.ReadAll doesn't generate the error and you don't need make the slice
