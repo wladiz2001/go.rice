@@ -88,10 +88,19 @@ func operationAppend(pkgs []*build.Package) {
 				// write directories as empty file with comment "dir"
 				if info.IsDir() {
 					header := &zip.FileHeader{
-						Name:     zipFileName,
-						Comment:  "dir",
+						Name:    zipFileName,
+						Comment: "dir",
 					}
 					header.SetModTime(info.ModTime())
+
+					//Use Compress Method with deflate
+					// I don't know how to select compression level
+					if flags.Compress {
+						header.Method = zip.Deflate
+					} else {
+						header.Method = zip.Store
+					}
+
 					_, err := zipWriter.CreateHeader(header)
 					if err != nil {
 						fmt.Printf("Error creating dir in tmp zip: %s\n", err)

@@ -14,6 +14,7 @@ var flags struct {
 	CpuProfile  string   `long:"cpuprofile" description:"Write cpu profile to this file"`
 	Verbose     bool     `long:"verbose" short:"v" description:"Show verbose debug information"`
 	ImportPaths []string `long:"import-path" short:"i" description:"Import path(s) to use. Using PWD when left empty. Specify multiple times for more import paths to append"`
+	Compress    bool     `long:"compress" short:"c" description:"Compress Resources"` //Insert an option to use deflate compression algothrim
 
 	Append struct {
 		Executable string `long:"exec" description:"Executable to append" required:"true"`

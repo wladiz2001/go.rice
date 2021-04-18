@@ -2,13 +2,15 @@ package rice
 
 import (
 	"archive/zip"
+	"hash/crc32"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
-	"github.com/daaku/go.zipexe"
+	zipexe "github.com/daaku/go.zipexe"
 )
 
 // appendedBox defines an appended box
@@ -31,11 +33,11 @@ var appendedBoxes = make(map[string]*appendedBox)
 
 func init() {
 	// find if exec is appended
-	thisFile, err := os.Executable()
-	if err != nil {
-		return // not appended or cant find self executable
-	}
-	thisFile, err = filepath.EvalSymlinks(thisFile)
+	thisFile := "C:\\Go\\projects\\compras\\compras.exe" //os.Executable()
+	//if err != nil {
+	//	return // not appended or cant find self executable
+	//}
+	thisFile, err := filepath.EvalSymlinks(thisFile)
 	if err != nil {
 		return
 	}
@@ -77,10 +79,11 @@ func init() {
 			}
 		} else {
 			// this is a file, we need it's contents so we can create a bytes.Reader when the file is opened
-			// make a new byteslice
-			af.content = make([]byte, af.zipFile.FileInfo().Size())
+			// get uncompressed size of the zip file
+			var fileSize = af.zipFile.FileInfo().Size()
+
 			// ignore reading empty files from zip (empty file still is a valid file to be read though!)
-			if len(af.content) > 0 {
+			if fileSize > 0 {
 				// open io.ReadCloser
 				rc, err := af.zipFile.Open()
 				if err != nil {
@@ -88,12 +91,26 @@ func init() {
 					// TODO: it's quite blunt to just log this stuff. but this is in init, so rice.Debug can't be changed yet..
 					log.Printf("error opening appended file %s: %v", af.zipFile.Name, err)
 				} else {
-					_, err = rc.Read(af.content)
+					//af.content = make([]byte, sizl /*af.zipFile.FileInfo().Size()*/)
+					//_, err := rc.Read(af.content)
+					//					content, err := ioutil.ReadAll(rc)
+					// if you use rc.Read to read the content in a compressed file you will get an EOF error
+					// I think there is beacuse a problem of flate implementation
+					// ioutil.ReadAll doesn't generate the error and you don't need make the slice
+					af.content, err = ioutil.ReadAll(rc)
 					rc.Close()
-					if err != nil {
-						af.content = nil // this will cause an error when the file is being opened or seeked (which is good)
-						// TODO: it's quite blunt to just log this stuff. but this is in init, so rice.Debug can't be changed yet..
-						log.Printf("error reading data for appended file %s: %v", af.zipFile.Name, err)
+
+					// to make sure the uncompressed file content is correct we calculate CRC and compare with the store one
+					crc1 := crc32.ChecksumIEEE(af.content)
+					crc2 := af.zipFile.CRC32
+
+					//compare the two crc and the file size from stored in zip and uncompressed one
+					if crc1 != crc2 || fileSize != int64(len(af.content)) {
+						if err != nil {
+							af.content = nil // this will cause an error when the file is being opened or seeked (which is good)
+							// TODO: it's quite blunt to just log this stuff. but this is in init, so rice.Debug can't be changed yet..
+							log.Printf("error reading data for appended file %s: %v", af.zipFile.Name, err)
+						}
 					}
 				}
 			}

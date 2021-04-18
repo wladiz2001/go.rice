@@ -127,6 +127,8 @@ func writeBoxesGo(pkg *build.Package, out io.Writer) error {
 	embedSourceUnformated := bytes.NewBuffer(make([]byte, 0))
 
 	// execute template to buffer
+	// Now we have the option to select compressed or not we can't use init function in templates.go, then call here
+	initTemplate()
 	err := tmplEmbeddedBox.Execute(
 		embedSourceUnformated,
 		embedFileDataType{pkg.Name, boxes},
